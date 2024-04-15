@@ -1,0 +1,192 @@
+---
+title: "TOMGENDER"
+author: "Carol Lu"
+date: "2024-03-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+tom2 <- read.csv("~/UW/LCD Lab - Documents/Studies/Perspective Taking/Theory of Mind/Sotomayor et al ToM Open Dataset/Gender Differences/ToMBooklet2-Data.csv")
+gender <- read.csv("~/UW/LCD Lab - Documents/Studies/Perspective Taking/Theory of Mind/Sotomayor et al ToM Open Dataset/Gender Differences/Gender.csv") %>%
+  rename(subID = SubID)
+```
+
+```{r}
+#All ages
+tom2_gender <- right_join(tom2, gender, by = "subID") %>%
+  group_by(Question_ID, Gender)
+```
+
+```{r}
+#All ages gender avg summary by question
+gender_summary <- tom2_gender %>%
+  summarise(mean_response = mean(Answer..0..1., na.rm = TRUE),
+    sd_response = sd(Answer..0..1., na.rm = TRUE))
+
+print(gender_summary)
+```
+
+```{r}
+#All ages gender differences
+gender_differences <- tom2_gender %>%
+  group_by(Question_ID) %>%
+  summarise(
+    mean_response_F = mean(Answer..0..1.[Gender == "F"], na.rm = TRUE),
+    mean_response_M = mean(Answer..0..1.[Gender == "M"], na.rm = TRUE)
+  ) %>%
+  mutate(gender_difference = mean_response_F - mean_response_M) %>%
+  arrange(desc(gender_difference))
+
+print(gender_differences)
+```
+```{r}
+#All ages, gender by question clusters
+#Create question clusters
+tom2_gender_cluster <- tom2_gender %>%
+  mutate(Cluster = sub(".*_(1[0-9]|[1-9])\\..*", "\\1", Question_ID))
+
+# Group by cluster and calculate summary statistics
+cluster_summary <- tom2_gender_cluster %>%
+  group_by(Cluster) %>%
+  summarise(mean_response = mean(Answer..0..1., na.rm = TRUE),
+            sd_response = sd(Answer..0..1., na.rm = TRUE)) %>%
+   arrange(as.numeric(Cluster))
+
+print(cluster_summary)
+```
+
+```{r}
+#All ages question cluster gender differences
+cluster_gender_differences <- tom2_gender_cluster %>%
+  group_by(Cluster) %>%
+  summarise(
+    mean_response_F = mean(Answer..0..1.[Gender == "F"], na.rm = TRUE),
+    mean_response_M = mean(Answer..0..1.[Gender == "M"], na.rm = TRUE)
+  ) %>%
+  mutate(gender_difference = mean_response_F - mean_response_M) %>%
+  arrange(desc(gender_difference))
+
+print(cluster_gender_differences)
+```
+
+
+##### 7 and OLDER
+```{r}
+#Only 7 and OLDER
+
+older <- tom2_gender %>%
+  filter(Age >= 7)
+```
+
+```{r}
+#7 and older gender avg summary by question
+older_summary <- older %>%
+  summarise(mean_response = mean(Answer..0..1., na.rm = TRUE),
+    sd_response = sd(Answer..0..1., na.rm = TRUE))
+
+print(older_summary)
+```
+
+```{r}
+#7 and older gender differences
+older_differences <- older %>%
+  group_by(Question_ID, Gender) %>%
+  summarise(mean_response = mean(Answer..0..1., na.rm = TRUE)) %>%
+  pivot_wider(names_from = Gender, values_from = mean_response) %>%
+  mutate(gender_difference = F - M) %>%
+  arrange(desc(gender_difference))
+
+print(older_differences)
+```
+```{r}
+#7 and older gender avg summary by cluster
+#Create question clusters
+cluster_older <- older %>%
+  mutate(Cluster = sub(".*_(1[0-9]|[1-9])\\..*", "\\1", Question_ID))
+
+cluster_older_summary <- cluster_older %>%
+  group_by(Cluster) %>%
+  summarise(mean_response = mean(Answer..0..1., na.rm = TRUE),
+  sd_response = sd(Answer..0..1., na.rm = TRUE)) %>%
+  arrange(as.numeric(Cluster))
+
+print(cluster_older_summary)
+```
+
+```{r}
+#7 and older gender differences by cluster
+cluster_older_differences <- cluster_older %>%
+  group_by(Cluster, Gender) %>%
+  summarise(mean_response = mean(Answer..0..1., na.rm = TRUE)) %>%
+  pivot_wider(names_from = Gender, values_from = mean_response) %>%
+  mutate(gender_difference = F - M) %>%
+  arrange(desc(gender_difference))
+
+print(cluster_older_differences)
+```
+
+### 6 and younger
+```{r}
+#Only 6 and YOUNGER
+
+younger <- tom2_gender %>%
+  filter(Age <= 6)
+```
+
+```{r}
+#6 and younger gender avg summary by question
+younger_summary <- younger %>%
+  summarise(mean_response = mean(Answer..0..1., na.rm = TRUE),
+    sd_response = sd(Answer..0..1., na.rm = TRUE))
+
+print(younger_summary)
+```
+
+```{r}
+#6 and younger gender differences
+younger_differences <- younger %>%
+  group_by(Question_ID, Gender) %>%
+  summarise(mean_response = mean(Answer..0..1., na.rm = TRUE)) %>%
+  pivot_wider(names_from = Gender, values_from = mean_response) %>%
+  mutate(gender_difference = F - M) %>%
+  arrange(desc(gender_difference))
+
+print(younger_differences)
+```
+
+```{r}
+#6 and younger gender avg summary by cluster
+#Create question clusters
+cluster_younger <- younger %>%
+  mutate(Cluster = sub(".*_(1[0-9]|[1-9])\\..*", "\\1", Question_ID))
+
+cluster_younger_summary <- cluster_younger %>%
+  group_by(Cluster) %>%
+  summarise(mean_response = mean(Answer..0..1., na.rm = TRUE),
+  sd_response = sd(Answer..0..1., na.rm = TRUE)) %>%
+  arrange(as.numeric(Cluster))
+
+print(cluster_younger_summary)
+```
+
+```{r}
+#6 and younger gender differences by cluster
+cluster_younger_differences <- cluster_younger %>%
+  group_by(Cluster, Gender) %>%
+  summarise(mean_response = mean(Answer..0..1., na.rm = TRUE)) %>%
+  pivot_wider(names_from = Gender, values_from = mean_response) %>%
+  mutate(gender_difference = F - M) %>%
+  arrange(desc(gender_difference))
+
+print(cluster_younger_differences)
+```
+
