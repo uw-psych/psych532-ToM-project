@@ -1,0 +1,103 @@
+---
+title: "TOMGENDER for loop"
+output:
+  html_document:
+    highlight: haddock 
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+#need to change the file path 
+tom2 <- read.csv("/Users/guoziqi/Desktop/behavioral_data copy/ToMBooklet2-Data.csv")
+
+gender <- read.csv("/Users/guoziqi/Desktop/behavioral_data copy/Gender.csv") %>%
+  rename(subID = SubID)
+
+
+print(head(tom2))
+
+print(head(gender))
+
+tom2_gender <- right_join(tom2, gender, by = "subID") %>% 
+  group_by(Question_ID, Gender) 
+```
+
+```{r}
+
+# result list
+all_ages_summary <- list()
+all_ages_differences <- list()
+
+#max age
+max_age <- max(tom2_gender$Age, na.rm = TRUE)
+
+for (age in 0:max_age) {  # age for loop
+
+  older <- tom2_gender %>%
+    filter(Age >= age)
+  
+  older_summary <- older %>%
+    summarise(
+      mean_response = mean(Answer..0..1., na.rm = TRUE),
+      sd_response = sd(Answer..0..1., na.rm = TRUE)
+    )
+  
+  all_ages_summary[[paste("Age", age, "and up")]] <- older_summary  
+
+  print(paste("Summary for Age", age, "and up:")) 
+  print(older_summary)
+  
+  older_differences <- older %>%
+    group_by(Question_ID, Gender) %>%
+    summarise(mean_response = mean(Answer..0..1., na.rm = TRUE)) %>%
+    pivot_wider(names_from = Gender, values_from = mean_response) %>%
+    mutate(gender_difference = F - M) %>%
+    arrange(desc(gender_difference))
+  
+  all_ages_differences[[paste("Age", age, "and up")]] <- older_differences #
+  print(paste("Differences for Age", age, "and up:"))
+  print(older_differences)
+
+ 
+  cluster_older <- older %>%
+    mutate(Cluster = sub(".*_(1[0-9]|[1-9])\\..*", "\\1", Question_ID))
+  
+  cluster_older_summary <- cluster_older %>%
+    group_by(Cluster) %>%
+    summarise(
+      mean_response = mean(Answer..0..1., na.rm = TRUE),
+      sd_response = sd(Answer..0..1., na.rm = TRUE)
+    ) %>%
+    arrange(as.numeric(Cluster))
+  
+  all_ages_summary[[paste("Cluster Age", age, "and up")]] <- cluster_older_summary
+
+  print(paste("Summary for Cluster Age", age, "and up:"))
+  print(cluster_older_summary)
+  
+  cluster_older_differences <- cluster_older %>%
+    group_by(Cluster, Gender) %>%
+    summarise(mean_response = mean(Answer..0..1., na.rm = TRUE)) %>%
+    pivot_wider(names_from = Gender, values_from = mean_response) %>%
+    mutate(gender_difference = F - M) %>%
+    arrange(desc(gender_difference))
+  
+  all_ages_differences[[paste("Cluster Age", age, "and up")]] <- cluster_older_differences
+
+  print(paste("Differences for Cluster Age", age, "and up:"))
+  print(cluster_older_summary)
+}
+
+
+#print(all_ages_summary)
+#print(all_ages_differences)
+```
