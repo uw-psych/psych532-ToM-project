@@ -16,12 +16,11 @@ library(dplyr)
 ```
 
 ```{r}
-#need to change the file path 
-tom2 <- read.csv("/Users/guoziqi/Desktop/behavioral_data copy/ToMBooklet2-Data.csv")
+#Import data
+tom2 <- read.csv("../behavioral_data/ToMBooklet2-Data.csv")
 
-gender <- read.csv("/Users/guoziqi/Desktop/behavioral_data copy/Gender.csv") %>%
+gender <- read.csv("../behavioral_data/Gender.csv") %>%
   rename(subID = SubID)
-
 
 print(head(tom2))
 
