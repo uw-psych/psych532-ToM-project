@@ -39,7 +39,7 @@ all_ages_differences <- list()
 #max age
 max_age <- max(tom2_gender$Age, na.rm = TRUE)
 
-for (age in 0:max_age) {  # age for loop
+for (age in 0:max_age) {  #for loop for looking at gender differences by age
 
   older <- tom2_gender %>%
     filter(Age >= age)
@@ -50,9 +50,9 @@ for (age in 0:max_age) {  # age for loop
       sd_response = sd(Answer..0..1., na.rm = TRUE)
     )
   
-  all_ages_summary[[paste("Age", age, "and up")]] <- older_summary  
+  all_ages_summary[[paste("Age", age)]] <- older_summary  
 
-  print(paste("Summary for Age", age, "and up:")) 
+  print(paste("Summary for Age", age)) 
   print(older_summary)
   
   older_differences <- older %>%
@@ -62,8 +62,8 @@ for (age in 0:max_age) {  # age for loop
     mutate(gender_difference = F - M) %>%
     arrange(desc(gender_difference))
   
-  all_ages_differences[[paste("Age", age, "and up")]] <- older_differences #
-  print(paste("Differences for Age", age, "and up:"))
+  all_ages_differences[[paste("Age", age)]] <- older_differences #
+  print(paste("Differences for Age", age))
   print(older_differences)
 
  
@@ -78,9 +78,9 @@ for (age in 0:max_age) {  # age for loop
     ) %>%
     arrange(as.numeric(Cluster))
   
-  all_ages_summary[[paste("Cluster Age", age, "and up")]] <- cluster_older_summary
+  all_ages_summary[[paste("Cluster Age", age)]] <- cluster_older_summary
 
-  print(paste("Summary for Cluster Age", age, "and up:"))
+  print(paste("Summary for Cluster Age", age))
   print(cluster_older_summary)
   
   cluster_older_differences <- cluster_older %>%
@@ -90,13 +90,12 @@ for (age in 0:max_age) {  # age for loop
     mutate(gender_difference = F - M) %>%
     arrange(desc(gender_difference))
   
-  all_ages_differences[[paste("Cluster Age", age, "and up")]] <- cluster_older_differences
+  all_ages_differences[[paste("Cluster Age", age)]] <- cluster_older_differences
 
-  print(paste("Differences for Cluster Age", age, "and up:"))
+  print(paste("Differences for Cluster Age", age))
   print(cluster_older_summary)
 }
 
-
-#print(all_ages_summary)
+print(all_ages_summary)
 #print(all_ages_differences)
 ```
