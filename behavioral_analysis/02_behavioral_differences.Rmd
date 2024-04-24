@@ -12,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(dplyr)
+library(ggplot2)
+library(reshape2)
 ```
 
 ```{r}
@@ -50,6 +52,24 @@ gender_differences <- tom2_gender %>%
 print(gender_differences)
 ```
 ```{r}
+#Visualizations for all ages by question
+gender_differences_viz <- melt(gender_differences, id.vars = "Question_ID")
+
+ggplot(gender_differences_viz, aes(x = Question_ID, y = value, fill = variable)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.7) +
+  geom_errorbar(aes(ymin = value - ifelse(variable == "gender_difference", value, 0),
+                    ymax = value + ifelse(variable == "gender_difference", value, 0)),
+                position = position_dodge(width = 0.7), width = 0.25) +
+  labs(x = "Question ID", y = "Mean Response", fill = "Gender") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("mean_response_F" = "blue", "mean_response_M" = "red", "gender_difference" = "green"),
+                    labels = c("Female", "Male", "Gender Difference")) +
+  ggtitle("Gender Differences in Mean Response by Question")
+```
+
+
+```{r}
 #All ages, gender by question clusters
 #Create question clusters
 tom2_gender_cluster <- tom2_gender %>%
@@ -78,6 +98,13 @@ cluster_gender_differences <- tom2_gender_cluster %>%
 
 print(cluster_gender_differences)
 ```
+
+```{r}
+#Visualizations for all ages by question cluster
+
+
+```
+
 
 
 ##### 7 and OLDER
