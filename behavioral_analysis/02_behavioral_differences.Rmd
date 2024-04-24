@@ -52,20 +52,40 @@ gender_differences <- tom2_gender %>%
 print(gender_differences)
 ```
 ```{r}
-#Visualizations for all ages by question
+#Visualizations for mean of all ages by question
 gender_differences_viz <- melt(gender_differences, id.vars = "Question_ID")
 
+# Filter to include only mean responses for F and M
+gender_differences_viz <- subset(gender_differences_viz, variable %in% c("mean_response_F", "mean_response_M"))
+
+# Plot
 ggplot(gender_differences_viz, aes(x = Question_ID, y = value, fill = variable)) +
   geom_bar(stat = "identity", position = "dodge", width = 0.7) +
-  geom_errorbar(aes(ymin = value - ifelse(variable == "gender_difference", value, 0),
-                    ymax = value + ifelse(variable == "gender_difference", value, 0)),
-                position = position_dodge(width = 0.7), width = 0.25) +
   labs(x = "Question ID", y = "Mean Response", fill = "Gender") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_fill_manual(values = c("mean_response_F" = "blue", "mean_response_M" = "red", "gender_difference" = "green"),
-                    labels = c("Female", "Male", "Gender Difference")) +
+  scale_fill_manual(values = c("mean_response_F" = "gold2", "mean_response_M" = "purple3"),
+                    labels = c("Female", "Male")) +
+  ggtitle("Mean Response by Gender and Question")
+```
+
+```{r}
+differences_viz <- melt(gender_differences, id.vars = "Question_ID")
+
+# Filter to include only gender differences
+differences_viz <- subset(differences_viz, variable == "gender_difference")
+
+# Plot
+ggplot(differences_viz, aes(x = Question_ID, y = value, fill = variable)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.7) +
+  labs(x = "Question ID", y = "Gender Difference", fill = "Gender") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_manual(values = c("gender_difference" = "pink"),
+                    labels = "Gender Difference") +
   ggtitle("Gender Differences in Mean Response by Question")
+
+#positive means F higher
 ```
 
 
@@ -100,11 +120,37 @@ print(cluster_gender_differences)
 ```
 
 ```{r}
-#Visualizations for all ages by question cluster
+#Visualizations for mean for all ages by question cluster
 
+cluster_gender_differences_viz <- cluster_gender_differences %>%
+  filter(!is.na(Cluster)) %>%
+  mutate(Cluster = as.numeric(Cluster)) %>%
+  arrange(Cluster) %>%
+  pivot_longer(cols = c(mean_response_F, mean_response_M),
+               names_to = "Sex",
+               values_to = "Mean_Response")
 
+# Plot
+ggplot(cluster_gender_differences_viz, aes(x = factor(Cluster), y = Mean_Response, fill = Sex)) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.7) +
+  labs(x = "Cluster", y = "Mean Response", fill = "Sex") +
+  theme_minimal() +
+  scale_fill_manual(values = c("mean_response_F" = "pink", "mean_response_M" = "blue"),
+                    labels = c("Female", "Male")) +
+  ggtitle("Mean Response by Sex and Cluster")
 ```
 
+```{r}
+#Visualizations for differences for all ages by question cluster
+
+ggplot(cluster_gender_differences %>% filter(!is.na(Cluster)), aes(x = factor(Cluster, levels = unique(Cluster)), y = gender_difference, fill = "Gender Difference")) +
+  geom_bar(stat = "identity", position = "dodge", width = 0.7) +
+  labs(x = "Cluster", y = "Gender Difference") +
+  theme_minimal() +
+  scale_fill_manual(values = c("Gender Difference" = "purple3"), labels = "Sex Difference") +
+  ggtitle("Sex Differences in Mean Response by Cluster") +
+  theme(legend.position = "none")
+```
 
 
 ##### 7 and OLDER
