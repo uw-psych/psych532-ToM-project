@@ -1,0 +1,215 @@
+---
+title: "TOMGENDER for loop"
+author: "NAN"
+output:
+  html_document:
+    highlight: haddock 
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(gridExtra)
+```
+
+```{r}
+tom2 <- read.csv("../behavioral_data/ToMBooklet2-Data.csv") 
+
+gender <- read.csv("../behavioral_data/Gender.csv") %>%
+  rename(subID = SubID) %>%
+  mutate(Age = as.integer(Age)) #age to integer
+
+#print("展示表头")
+#print(head(tom2))
+#print("展示表头")
+
+gender$Gender[gender$Gender == "F"] <- "Female"
+gender$Gender[gender$Gender == "M"] <- "Male"
+
+
+tom2_gender <- right_join(tom2, gender, by = "subID") %>%  # right_join
+  group_by(Question_ID, Gender) # group
+
+
+tom2_gender <- tom2_gender[!is.na(tom2_gender$Age), ]
+
+print(head(tom2_gender))
+
+
+
+```
+
+```{r}
+
+
+
+unique_ages <- sort(unique(tom2_gender$Age)) # different age 
+
+ages_mean <- numeric(length(unique_ages))
+ages_sd <- numeric(length(unique_ages))
+
+f_ages_mean  <- numeric(length(unique_ages))
+f_ages_sd <- numeric(length(unique_ages))
+
+m_ages_mean <- numeric(length(unique_ages))
+m_ages_sd <- numeric(length(unique_ages))
+
+
+
+
+
+for(age in unique_ages) {
+  older <- tom2_gender %>%
+    filter(Age == age)
+  
+  f_older <- older %>%
+    filter(Gender == "Female")
+  
+  m_older <- older %>%
+    filter(Gender == "Male")
+  
+  
+  ages_mean[age] <- mean(m_older$Answer..0..1., na.rm = TRUE)
+  ages_sd[age] <- sd(m_older$Answer..0..1., na.rm = TRUE)
+  
+  f_ages_mean[age] <- mean(f_older$Answer..0..1., na.rm = TRUE)
+  f_ages_sd[age] <- sd(f_older$Answer..0..1., na.rm = TRUE)
+  
+  m_ages_mean[age] <- mean(m_older$Answer..0..1., na.rm = TRUE)
+  m_ages_sd[age] <- sd(m_older$Answer..0..1., na.rm = TRUE)
+  
+  
+  
+}
+
+
+#plot(ages_mean, type = "l", main = "Line Plot", xlab = "age", ylab = "answer mean")
+#plot(ages_sd, type = "l", main = "Line Plot", xlab = "age", ylab = "answer mean")
+#data visulization 
+data <- data.frame(
+  Age = 1:max(unique_ages),
+  Mean = ages_mean,
+  SD = ages_sd,
+  f_m = f_ages_mean,
+  f_sd = f_ages_sd,
+  m_m = m_ages_mean,
+  m_sd = m_ages_sd
+)
+
+p1 <- ggplot(data) +
+  geom_line(aes(x = Age, y = Mean, color = "Mean", linetype = "Mean"), size = 1.2) +
+  geom_line(aes(x = Age, y = SD, color = "SD", linetype = "SD"), size = 1.2) +
+  scale_color_manual(name = "Legend", values = c("Mean" = "blue", "SD" = "red")) +
+  scale_linetype_manual(name = "Legend", values = c("Mean" = "solid", "SD" = "dashed")) +
+  labs(title = "Mean and Standard Deviation by Age", x = "Age", y = "Value") +
+  theme_minimal()+ scale_x_continuous(breaks = seq(min(data$Age), max(data$Age), by = 1))
+
+p2 <- ggplot(data) +
+  geom_line(aes(x = Age, y = f_m, color = "female", linetype = "female"), size = 1.2) +
+  geom_line(aes(x = Age, y = m_m, color = "male", linetype = "male"), size = 1.2) +
+  scale_color_manual(name = "gender", values = c("female" = "blue", "male" = "red")) +
+  scale_linetype_manual(name = "gender", values = c("female" = "solid", "male" = "dashed")) +
+  labs(title = "gender by Age", x = "Age", y = "Value") +
+  theme_minimal()+ scale_x_continuous(breaks = seq(min(data$Age), max(data$Age), by = 1))
+
+
+
+grid.arrange(p1, p2, ncol = 2)
+
+combined_plot <- grid.arrange(p1, p2, ncol = 2)
+ggsave("combined_plot.png", combined_plot, width = 24, height = 8, units = "in")
+```
+
+
+
+
+
+
+```{r}
+all_ages_summary <- list()
+all_ages_differences <- list()
+
+print(unique_ages)
+for (age in unique_ages) {  # age start from 0
+#original code
+  older <- tom2_gender %>%
+    filter(Age == age)
+  print(age)
+  
+  older_summary <- older %>%
+    summarise(
+      mean_response = mean(Answer..0..1., na.rm = TRUE),
+      sd_response = sd(Answer..0..1., na.rm = TRUE)
+    )
+  
+  all_ages_summary[[paste("Age", age)]] <- older_summary
+
+  #print(paste("Summary for Age", age, "and up:"))
+  #print(older_summary)
+  
+  older_differences <- older %>%
+    group_by(Question_ID, Gender) %>%
+    summarise(mean_response = mean(Answer..0..1., na.rm = TRUE)) %>%
+    pivot_wider(names_from = Gender, values_from = mean_response) %>%
+    mutate(gender_difference = Female - Male) %>%
+    arrange(desc(gender_difference))
+  
+  all_ages_differences[[paste("Age", age)]] <- older_differences 
+  
+  #print(paste("Differences for Age", age, "and up:"))
+  #print(older_differences)
+
+  # age group cluster analysis basedd on Question
+
+
+
+cluster_older <- older %>%
+mutate(Cluster = sub(".*_(1[0-9]|[1-9])\\..*", "\\1", Question_ID))
+  
+  cluster_older_summary <- cluster_older %>%
+    group_by(Cluster) %>%
+    summarise(
+      mean_response = mean(Answer..0..1., na.rm = TRUE),
+      sd_response = sd(Answer..0..1., na.rm = TRUE)
+    ) %>%
+    arrange(as.numeric(Cluster))
+  
+  #all_ages_summary[[paste("Cluster Age", age)]] <- cluster_older_summary
+
+  #print(paste("Summary for Cluster Age", age, "and up:"))
+  #print(cluster_older_summary)
+  
+  cluster_older_differences <- cluster_older %>%
+    group_by(Cluster, Gender) %>%
+    summarise(mean_response = mean(Answer..0..1., na.rm = TRUE)) %>%
+    pivot_wider(names_from = Gender, values_from = mean_response) %>%
+    mutate(gender_difference = Female - Male) %>%
+    arrange(desc(gender_difference))
+  
+  all_ages_differences[[paste("Cluster Age", age)]] <- cluster_older_differences
+
+  #print(paste("Differences for Cluster Age", age, "and up:"))
+  #print(cluster_older_summary)
+}
+
+print(all_ages_summary)
+#print(all_ages_differences)
+```
+
+
+
+```{r}
+print(names(all_ages_summary))
+```
+
+
+```{r}
+print(all_ages_summary["Age 3"])
+```
+
