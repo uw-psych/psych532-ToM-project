@@ -25,9 +25,9 @@ gender <- read.csv("../behavioral_data/Gender.csv") %>%
   rename(subID = SubID) %>%
   mutate(Age = as.integer(Age)) #age to integer
 
-#print("展示表头")
+
 #print(head(tom2))
-#print("展示表头")
+
 
 gender$Gender[gender$Gender == "F"] <- "Female"
 gender$Gender[gender$Gender == "M"] <- "Male"
