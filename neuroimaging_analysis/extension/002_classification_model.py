@@ -1,3 +1,19 @@
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:light
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.16.1
+#   kernelspec:
+#     display_name: Python [conda env:mriqc-learn-2]
+#     language: python
+#     name: conda-env-mriqc-learn-2-py
+# ---
+
+# +
 import math
 import string
 
@@ -5,37 +21,74 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn import metrics
+from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
+from sklearn.model_selection import KFold
+from sklearn.preprocessing import StandardScaler
+# -
 
-fc = pd.read_csv('')
+from sklearn.metrics import roc_curve
 
-#make a new DataFrame??
+pred_target = 'Gender' 
+n_splits = 5
 
-fc_data = pd.DataFrame('')
+fc_df = pd.read_csv('fc_vals.csv').drop('Unnamed: 0', axis=1).T
+#a relative path is easier when collaborating
 
-train_data, test_and_validation_data = train_test_split(fc, test_size=0.2)
-validation_data, test_data = train_test_split(test_and_validation_data, test_size=0.5)
+participants_df = pd.read_csv('participants.tsv', sep = '\t', 
+                              index_col='participant_id')
 
-logistic_model = LogisticRegression(penalty='l2', C=1e23) #C=1/Lambda
-logistic_model.fit(train_data[], train_data[])
+if pred_target == 'Gender': 
+    participants_df.loc[participants_df['Gender'] == 'M'] = 0
+    participants_df.loc[participants_df['Gender'] == 'F'] = 1
 
-#coefficients
-coefficients = logistic_model.coef_
-weights = logistic_model.coef_property
+fc_df = fc_df.join(participants_df[pred_target])  
 
-#predict the probability of the target
-logistic_model.predict_proba(validation_data[])
+from sklearn.utils import resample
+fc_df = resample(fc_df, replace=True) 
 
-#predict labels
-logistic_model.predict(validation_data[])
+kfolds = KFold(
+        n_splits=5,
+        shuffle=True)
 
-#find the validation accuracy
-logistic_model_val_accuracy = accuracy_score(validation_data[], logistic_model.predict(validation_data[]))
+acc_scores = [] 
+for fold_idx, (train_idx, test_idx) in enumerate( kfolds.split(X=fc_df) ):
+    train_df = fc_df.iloc[train_idx, :]
+    test_df = fc_df.iloc[test_idx, :]
 
+    x_train = train_df.drop(pred_target, axis=1)
+    y_train = train_df[pred_target].astype(int)
+
+    x_test = test_df.drop(pred_target, axis=1) 
+    y_test = test_df[pred_target].astype(int)
+    
+    scaler = StandardScaler()
+    #scale seperately - MH needs to fix in her own code
+    scaler.fit_transform(x_train)
+    scaler.fit_transform(x_test)
+
+    logistic_model = LogisticRegressionCV(penalty='l2') #C=1/Lambda
+    logistic_model.fit(x_train, y_train)
+
+    #coefficients
+    coefficients = logistic_model.coef_
+    print('Smallest coefficient', coefficients.min())
+    print('Largest coefficient:', coefficients.max())
+
+    #calc accuracy
+    acc_scores.append(accuracy_score(logistic_model.predict(x_test), y_test))
+print(np.mean(acc_scores))  
+
+# +
+#add roc curve? 
+# -
+
+roc_curve(logistic_model.predict(x_test), y_test)
+
+acc_scores
+
+
+# +
 # create a confusion matrix
 def plot_confusion_matrix(tp, fp, fn, tn):
     """
@@ -47,17 +100,23 @@ def plot_confusion_matrix(tp, fp, fn, tn):
     """
     data = np.matrix([[tp, fp], [fn, tn]])
 
-    sns.heatmap(data,annot=True,xticklabels=['Actual Pos', 'Actual Neg']
+    heatmap = sns.heatmap(data,annot=True,xticklabels=['Actual Pos', 'Actual Neg']
               ,yticklabels=['Pred. Pos', 'Pred. Neg']) 
+    
+    fig = heatmap.get_figure()
+    fig.savefig("confusion_matrix.png")
 
 from sklearn.metrics import confusion_matrix
-tp = confusion_matrix(validation_data[], logistic_model.predict(validation_data[]))[1,1]
+tp = confusion_matrix(validation_data['Gender'].astype(int), logistic_model.predict(validation_data.iloc[:, :-1]))[1,1]
+fp = confusion_matrix(validation_data['Gender'].astype(int), logistic_model.predict(validation_data.iloc[:, :-1]))[0,1]
+tn = confusion_matrix(validation_data['Gender'].astype(int), logistic_model.predict(validation_data.iloc[:, :-1]))[0,0]
+fn = confusion_matrix(validation_data['Gender'].astype(int), logistic_model.predict(validation_data.iloc[:, :-1]))[1,0]
+# -
 
-# set up different regularization penalties to try
-l2_penalties = [0.01, 1, 4, 10, 1e2, 1e3, 1e5]
-for l2_penalty in l2_penalties:
-    model = LogisticRegression(penalty='l2', C=1/l2_penalty)
-    model.fit(train_data[], train_data[])
+plot_confusion_matrix(tp=tp, fp=fp, tn=tn, fn=fn)
+
+
+
 
 
 
