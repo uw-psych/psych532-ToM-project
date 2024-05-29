@@ -137,19 +137,26 @@ ggplot(cluster_gender_differences_viz, aes(x = factor(Cluster), y = Mean_Respons
   theme_minimal() +
   scale_fill_manual(values = c("mean_response_F" = "pink", "mean_response_M" = "blue"),
                     labels = c("Female", "Male")) +
-  ggtitle("Mean Response by Sex and Cluster")
+  ggtitle("Mean Response by Sex and Cluster") +
+  theme(plot.title = element_text(size=22))
 ```
 
 ```{r}
 #Visualizations for differences for all ages by question cluster
+cluster_gender_differences$Cluster <- as.numeric(cluster_gender_differences$Cluster)
 
-ggplot(cluster_gender_differences %>% filter(!is.na(Cluster)), aes(x = factor(Cluster, levels = unique(Cluster)), y = gender_difference, fill = "Gender Difference")) +
+cluster_gender_differences <- cluster_gender_differences %>%
+  filter(!is.na(Cluster)) %>%
+  arrange(Cluster)
+
+ggplot(cluster_gender_differences, aes(x = factor(Cluster, levels = unique(Cluster)), y = gender_difference, fill = "Gender Difference")) +
   geom_bar(stat = "identity", position = "dodge", width = 0.7) +
   labs(x = "Cluster", y = "Gender Difference") +
   theme_minimal() +
   scale_fill_manual(values = c("Gender Difference" = "purple3"), labels = "Sex Difference") +
   ggtitle("Sex Differences in Mean Response by Cluster") +
-  theme(legend.position = "none")
+  theme(legend.position = "none") +
+  theme(plot.title = element_text(size=16))
 ```
 
 
