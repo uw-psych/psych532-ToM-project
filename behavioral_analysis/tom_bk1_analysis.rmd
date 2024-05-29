@@ -156,7 +156,7 @@ ggplot(age_gender_counts, aes(x = factor(Age), y = count, fill = Gender)) +
   labs(title = "Age and Gender Distribution", x = "Age", y = "Count") +
   theme_minimal() +
   scale_fill_manual(values = c("Female" = "pink", "Male" = "lightblue")) +
-  scale_x_discrete(limits = as.character(1:12)) +
+  scale_x_discrete(limits = as.character(5:11)) +
    theme(
     axis.text.x = element_text(angle = 45, hjust = 1, size = 14), 
     axis.text.y = element_text(size = 14),  
