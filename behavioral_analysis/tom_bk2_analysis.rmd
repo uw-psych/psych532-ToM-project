@@ -13,7 +13,7 @@ library(gridExtra)
 ```{r}
 tom2 <- read.csv("../behavioral_data/ToMBooklet2-Data.csv") 
 
-gender <- read.csv("../behavioral_data/Gender.csv") %>%
+gender <- read.csv("../behavioral_data/ToMBooklet2_gender.csv") %>%
   rename(subID = SubID) %>%
   mutate(Age = as.integer(Age)) #age to integer
 
