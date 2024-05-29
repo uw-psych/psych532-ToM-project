@@ -4,4 +4,5 @@ Lydia and McKenzie are working on functional connectivity related analyses in th
 Install code: `pip install requirements.txt` 
 (Figure out how to do conda) 
 
-Jim is working on a direct replication of Richardson et al., 2018, *Nature Comms* in the directory `replication`. 
+Jim is working on a direct replication of Richardson et al., 2018, *Nature Comms* in the file `ToM_Pain_ROIs_20242404.R
+`. 

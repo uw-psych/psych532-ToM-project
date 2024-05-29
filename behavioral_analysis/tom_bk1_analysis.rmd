@@ -97,23 +97,41 @@ data <- data.frame(
 p1 <- ggplot(data) +
   geom_line(aes(x = Age, y = Mean, color = "Mean", linetype = "Mean"), size = 1.2) +
   geom_line(aes(x = Age, y = SD, color = "SD", linetype = "SD"), size = 1.2) +
-  scale_color_manual(name = "Legend", values = c("Mean" = "blue", "SD" = "red")) +
-  scale_linetype_manual(name = "Legend", values = c("Mean" = "solid", "SD" = "dashed")) +
+  scale_color_manual(name = "Mean/SD", values = c("Mean" = "blue", "SD" = "red")) +
+  scale_linetype_manual(name = "Mean/SD", values = c("Mean" = "solid", "SD" = "dashed")) +
   labs(title = "Mean and Standard Deviation by Age", x = "Age", y = "Value") +
-  theme_minimal()+ scale_x_continuous(breaks = seq(min(data$Age), max(data$Age), by = 1))
+  theme_minimal() +
+  scale_x_continuous(breaks = seq(min(data$Age), max(data$Age), by = 1)) +
+  theme(plot.title = element_text(size = 20),
+        legend.title = element_text(size = 16),  # Adjust legend title size
+        legend.text = element_text(size = 14),   # Adjust legend text size
+        axis.title.x = element_text(size = 16),  # Adjust x-axis title size
+        axis.title.y = element_text(size = 16),  # Adjust y-axis title size
+        axis.text.x = element_text(size = 14),   # Adjust x-axis text size
+        axis.text.y = element_text(size = 14))   # Adjust y-axis text size
 
+# Plot 2
 p2 <- ggplot(data) +
   geom_line(aes(x = Age, y = f_m, color = "female", linetype = "female"), size = 1.2) +
   geom_line(aes(x = Age, y = m_m, color = "male", linetype = "male"), size = 1.2) +
-  scale_color_manual(name = "gender", values = c("female" = "blue", "male" = "red")) +
-  scale_linetype_manual(name = "gender", values = c("female" = "solid", "male" = "dashed")) +
-  labs(title = "gender by Age", x = "Age", y = "Value") +
-  theme_minimal()+ scale_x_continuous(breaks = seq(min(data$Age), max(data$Age), by = 1))
+  scale_color_manual(name = "Gender", values = c("female" = "blue", "male" = "red")) +
+  scale_linetype_manual(name = "Gender", values = c("female" = "solid", "male" = "dashed")) +
+  labs(title = "Gender by Age", x = "Age", y = "ToM score") +
+  theme_minimal() +
+  scale_x_continuous(breaks = seq(min(data$Age), max(data$Age), by = 1)) +
+  theme(plot.title = element_text(size = 20),
+        legend.title = element_text(size = 16),  # Adjust legend title size
+        legend.text = element_text(size = 14),   # Adjust legend text size
+        axis.title.x = element_text(size = 16),  # Adjust x-axis title size
+        axis.title.y = element_text(size = 16),  # Adjust y-axis title size
+        axis.text.x = element_text(size = 14),   # Adjust x-axis text size
+        axis.text.y = element_text(size = 14))   # Adjust y-axis text size
 
-grid.arrange(p1, p2, ncol = 2)
-
+# Combine plots
 combined_plot <- grid.arrange(p1, p2, ncol = 2)
-ggsave("combined_plot.png", combined_plot, width = 24, height = 8, units = "in")
+
+# Save combined plot
+ggsave("combined_plot.png", combined_plot, width = 16, height = 8, units = "in")
 ```
 
 
@@ -122,19 +140,30 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 
-gender_counts <- tom2_gender %>%
+## use gender for counts
+age_gender_counts <- gender %>%
+  filter(Age >= 1 & Age <= 12) %>%
   group_by(Age, Gender) %>%
-  summarise(count = n()) %>%
-  ungroup() %>%
-  complete(Age, Gender, fill = list(count = 0))
+  summarise(count = n(), .groups = 'drop')
 
-ggplot(gender_counts, aes(x = Age, y = count, fill = Gender)) +
+
+print(age_gender_counts)
+
+
+
+ggplot(age_gender_counts, aes(x = factor(Age), y = count, fill = Gender)) +
   geom_bar(stat = "identity", position = "dodge") +
-  labs(title = "Gender Counts by Age", x = "Age", y = "Count") +
-  scale_fill_manual(values = c("Female" = "pink", "Male" = "lightblue")) +
+  labs(title = "Age and Gender Distribution", x = "Age", y = "Count") +
   theme_minimal() +
-  theme(legend.position = "top") +
-  scale_x_continuous(breaks = seq(5, 12,1))
+  scale_fill_manual(values = c("Female" = "pink", "Male" = "lightblue")) +
+  scale_x_discrete(limits = as.character(1:12)) +
+   theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 14), 
+    axis.text.y = element_text(size = 14),  
+    axis.title.x = element_text(size = 16),  
+    axis.title.y = element_text(size = 16),  
+    plot.title = element_text(size = 22)  
+  )
 ```
 
 
