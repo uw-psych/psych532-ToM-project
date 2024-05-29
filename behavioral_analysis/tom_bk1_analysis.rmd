@@ -150,13 +150,20 @@ age_gender_counts <- gender %>%
 print(age_gender_counts)
 
 
+
 ggplot(age_gender_counts, aes(x = factor(Age), y = count, fill = Gender)) +
   geom_bar(stat = "identity", position = "dodge") +
   labs(title = "Age and Gender Distribution", x = "Age", y = "Count") +
   theme_minimal() +
   scale_fill_manual(values = c("Female" = "pink", "Male" = "lightblue")) +
   scale_x_discrete(limits = as.character(1:12)) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+   theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 14), 
+    axis.text.y = element_text(size = 14),  
+    axis.title.x = element_text(size = 16),  
+    axis.title.y = element_text(size = 16),  
+    plot.title = element_text(size = 22)  
+  )
 ```
 
 
