@@ -3,6 +3,8 @@
 ## This repository contains the code for PSYCH532 2024 project.
 #### Group members: Ziqi Guo, McKenzie Hagen, Jim Treyens, Carol Lu, and Lydia Zhang
 
+link/to/writeup
+
 Our project was divided into two arms: a behavioral analysis of gender differences in a novel Theory of Mind task, and an analysis of associated functional MRI data from the same participants. 
 
 Behavioral Analysis
