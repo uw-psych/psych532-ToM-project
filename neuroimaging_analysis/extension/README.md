@@ -3,6 +3,7 @@ Description of each script:
 
 ## Setting up conda environment:
 ou will first need to install anaconda on your machine. Open the terminal and type each line of code (hit enter after each line). 
+
 `conda create -n ENVIRONMENTNAME python=3.8 --file=enviornment.yaml`
 
 This will create a new environment (line 1 below)— here the environment is called ENVIRONMENTNAME, but you should change it to something more suitable for your project. You can create many different environments if need be. The reason to create an environment is to keep code installs and dependencies stable and separate from each other.
