@@ -1,8 +1,8 @@
-Description of each script: 
+## Description of each script: 
 
 
 ## Setting up conda environment:
-ou will first need to install anaconda on your machine. Open the terminal and type each line of code (hit enter after each line). 
+You will first need to install [anaconda](https://docs.anaconda.com/free/anaconda/install/) on your machine. Open the terminal and type each line of code (hit enter after each line). 
 
 `conda create -n ENVIRONMENTNAME python=3.8 --file=enviornment.yaml`
 
@@ -12,7 +12,7 @@ Once the environment is created, you need to activate it to actually work inside
 
 `conda activate ENVIRONMENTNAME `
 
-Once activated, you can install any additional packages, but all packages for our analyses will be installed from `environment.yaml`. 
+Once activated, you can install any additional packages, but all packages for our analyses will already be installed from `environment.yaml`. 
 
 `conda install -c conda-forge [packagename]` 
 
@@ -26,5 +26,7 @@ If you've isntalled any new new packages, you can save those changes into the `e
 
 `how to yml command` 
 
+References: 
+[Master the basics of Conda environments](https://www.youtube.com/watch?v=1VVCd0eSkYc)
 
 
