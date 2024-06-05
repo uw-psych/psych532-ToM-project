@@ -24,18 +24,18 @@ tom2 <- read.csv("../behavioral_data/ToMBooklet1-Data.csv")
 
 gender <- read.csv("../behavioral_data//ToMBooklet1_gender.csv") %>%
   rename(subID = SubID) %>%
-  mutate(Age = as.integer(Age)) # 整数
+  mutate(Age = as.integer(Age)) # age into interger
 
-#print("展示表头")
+
 #print(head(tom2))
-#print("展示表头")
+
 
 gender$Gender[gender$Gender == "F"] <- "Female"
 gender$Gender[gender$Gender == "M"] <- "Male"
 
 
-tom2_gender <- right_join(tom2, gender, by = "subID") %>%  # 表左联right_join
-  group_by(Question_ID, Gender) # group_by聚合
+tom2_gender <- right_join(tom2, gender, by = "subID") %>%  # right_join
+  group_by(Question_ID, Gender) # group_by
 
 
 tom2_gender <- tom2_gender[!is.na(tom2_gender$Age), ]
@@ -44,9 +44,9 @@ print(head(tom2_gender))
 ```
 
 ```{r}
-# 存储结果的列表
+# list to store result 
 
-unique_ages <- sort(unique(tom2_gender$Age)) # 不同年龄
+unique_ages <- sort(unique(tom2_gender$Age)) # with diffferent age
 
 ages_mean <- numeric(length(unique_ages))
 ages_sd <- numeric(length(unique_ages))
@@ -156,7 +156,7 @@ ggplot(age_gender_counts, aes(x = factor(Age), y = count, fill = Gender)) +
   labs(title = "Age and Gender Distribution", x = "Age", y = "Count") +
   theme_minimal() +
   scale_fill_manual(values = c("Female" = "pink", "Male" = "lightblue")) +
-  scale_x_discrete(limits = as.character(1:12)) +
+  scale_x_discrete(limits = as.character(5:11)) +
    theme(
     axis.text.x = element_text(angle = 45, hjust = 1, size = 14), 
     axis.text.y = element_text(size = 14),  
@@ -185,8 +185,8 @@ all_ages_summary <- list()
 all_ages_differences <- list()
 
 print(unique_ages)
-for (age in unique_ages_11) {  # 排除12岁的
-# 下面是源代码内容
+for (age in unique_ages_11) {  # exclude 12
+# gender difference code 
   older <- tom2_gender %>%
     filter(Age == age)
   print(age)
@@ -197,9 +197,9 @@ for (age in unique_ages_11) {  # 排除12岁的
       sd_response = sd(Answer..0..1., na.rm = TRUE)
     )
   
-  all_ages_summary[[paste("Age", age)]] <- older_summary # 结果添加到表用于一起打印
+  all_ages_summary[[paste("Age", age)]] <- older_summary 
 
-  #print(paste("Summary for Age", age, "and up:")) # 用于分别打印
+  #print(paste("Summary for Age", age, "and up:")) #print seperately 
   #print(older_summary)
   
 older_differences <- older %>%
@@ -212,12 +212,12 @@ older_differences <- older %>%
 
   unique(older$Gender)
   
-  all_ages_differences[[paste("Age", age)]] <- older_differences # 结果添加到表用于一起打印
+  all_ages_differences[[paste("Age", age)]] <- older_differences 
   
-  #print(paste("Differences for Age", age, "and up:"))# 用于分别打印
+  #print(paste("Differences for Age", age, "and up:"))# print seperatly
   #print(older_differences)
 
-  # 对每个年龄组进行基于Question的簇分析
+  #Question analysis based on age
 
 
 
@@ -250,7 +250,7 @@ cluster_older_differences <- cluster_older %>%
   #print(cluster_older_summary)
 }
 
-# 删除注释可以使用下面的代码打印出所有年龄段的汇总结果和差异
+# all age summary 
 print(all_ages_summary)
 #print(all_ages_differences)
 ```
